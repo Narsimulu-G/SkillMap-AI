@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Agent SkillMap helps you analyze skill demand, salary trends, and search live job openings.">
+    <title>SkillMap AI - Autonomous Career Agent</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Style Sheet -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Background Glow Blobs -->
+    <div class="glow-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <div class="brand-text">
+                    <h1 class="logo-title">SkillMap <span>AI</span></h1>
+                    <p class="logo-subtitle">Autonomous Skill Demand & Career Agent</p>
+                </div>
+            </div>
+            <button id="settingsBtn" class="btn btn-secondary" title="Configure API Keys">
+                <i class="fa-solid fa-sliders"></i>
+                <span>API Configuration</span>
+            </button>
+        </header>
+
+        <!-- API Status Banner -->
+        <div id="apiStatusBanner" class="api-banner hidden">
+            <div class="banner-content">
+                <i class="fa-solid fa-circle-exclamation text-warning"></i>
+                <span>Some API keys are missing. Please configure them to enable the agent.</span>
+            </div>
+            <button id="bannerConfigBtn" class="btn btn-link">Configure Now</button>
+        </div>
+
+        <!-- Search / Control Panel -->
+        <section class="search-section card">
+            <form id="searchForm" class="search-form">
+                <div class="input-group">
+                    <label for="skillInput"><i class="fa-solid fa-brain"></i> Skill Name</label>
+                    <input type="text" id="skillInput" placeholder="e.g., Generative AI, React, FastAPI" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label for="locationInput"><i class="fa-solid fa-location-dot"></i> Target Location</label>
+                    <input type="text" id="locationInput" placeholder="e.g., India, Bangalore, USA" required autocomplete="off">
+                </div>
+                <button type="submit" id="submitBtn" class="btn btn-primary">
+                    <i class="fa-solid fa-circle-play"></i>
+                    <span>Run Career Agent</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- Main Workspace Grid -->
+        <main class="workspace-grid">
+            <!-- Left Pane: Market & Demand Insights -->
+            <section class="insights-pane card">
+                <div class="pane-header">
+                    <h2 class="pane-title"><i class="fa-solid fa-chart-line text-accent"></i> Market & Skill Insights</h2>
+                    <span class="badge badge-accent">Agent Output</span>
+                </div>
+                <div id="insightsContainer" class="pane-content empty-state">
+                    <div class="empty-state-content">
+                        <i class="fa-solid fa-robot"></i>
+                        <h3>Agent Idle</h3>
+                        <p>Enter a skill and location above to start the Career Agent's autonomous analysis loop.</p>
+                    </div>
+                </div>
+                
+                <!-- Insights Loading Skeleton -->
+                <div id="insightsSkeleton" class="skeleton-container hidden">
+                    <div class="skeleton-line skeleton-title"></div>
+                    <div class="skeleton-line skeleton-body-1"></div>
+                    <div class="skeleton-line skeleton-body-2"></div>
+                    <div class="skeleton-line skeleton-body-3"></div>
+                    <div class="skeleton-line skeleton-body-1"></div>
+                    <div class="skeleton-line skeleton-body-2"></div>
+                    <div class="skeleton-line skeleton-body-3"></div>
+                </div>
+            </section>
+
+            <!-- Right Pane: Job Listings -->
+            <section class="jobs-pane card">
+                <div class="pane-header">
+                    <h2 class="pane-title"><i class="fa-solid fa-briefcase text-secondary-color"></i> Matching Job Opportunities</h2>
+                    <span class="badge badge-secondary" id="jobCountBadge">0 found</span>
+                </div>
+                <div id="jobsContainer" class="pane-content empty-state">
+                    <div class="empty-state-content">
+                        <i class="fa-solid fa-list-check"></i>
+                        <h3>No Job Postings Yet</h3>
+                        <p>The agent will search live platforms (LinkedIn, Indeed, Glassdoor) via JSearch API when triggered.</p>
+                    </div>
+                </div>
+
+                <!-- Jobs Loading Skeleton -->
+                <div id="jobsSkeleton" class="skeleton-grid hidden">
+                    <div class="skeleton-card">
+                        <div class="skeleton-header">
+                            <div class="skeleton-circle"></div>
+                            <div class="skeleton-lines">
+                                <div class="skeleton-line skeleton-job-title"></div>
+                                <div class="skeleton-line skeleton-job-company"></div>
+                            </div>
+                        </div>
+                        <div class="skeleton-line skeleton-job-body"></div>
+                        <div class="skeleton-line skeleton-job-body"></div>
+                        <div class="skeleton-footer">
+                            <div class="skeleton-pill"></div>
+                            <div class="skeleton-pill"></div>
+                        </div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skeleton-header">
+                            <div class="skeleton-circle"></div>
+                            <div class="skeleton-lines">
+                                <div class="skeleton-line skeleton-job-title"></div>
+                                <div class="skeleton-line skeleton-job-company"></div>
+                            </div>
+                        </div>
+                        <div class="skeleton-line skeleton-job-body"></div>
+                        <div class="skeleton-line skeleton-job-body"></div>
+                        <div class="skeleton-footer">
+                            <div class="skeleton-pill"></div>
+                            <div class="skeleton-pill"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- API Configuration Modal -->
+    <div id="settingsModal" class="modal-backdrop hidden">
+        <div class="modal card">
+            <header class="modal-header">
+                <h3><i class="fa-solid fa-key text-accent"></i> API Configuration</h3>
+                <button id="closeSettingsBtn" class="btn-close">&times;</button>
+            </header>
+            <div class="modal-body">
+                <p class="modal-desc">Configure your API credentials. They will be saved securely to a local `.env` file in the project directory.</p>
+                
+                <form id="keysForm">
+                    <div class="input-group">
+                        <div class="label-wrapper">
+                            <label for="geminiKeyInput"><i class="fa-solid fa-gemini"></i> Gemini API Key</label>
+                            <span id="geminiDetectedBadge" class="key-status-badge hidden">Auto-detected Sibling Key</span>
+                        </div>
+                        <input type="password" id="geminiKeyInput" placeholder="Enter Gemini API Key (or leave blank if prefilled)">
+                        <small class="field-desc">Used for the LLM agent's core reasoning engine.</small>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="tavilyKeyInput"><i class="fa-solid fa-globe"></i> Tavily API Key</label>
+                        <input type="password" id="tavilyKeyInput" placeholder="Enter Tavily API Key">
+                        <small class="field-desc">Required to fetch real-time skill demand, salary insights, and market trends.</small>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="rapidapiKeyInput"><i class="fa-solid fa-server"></i> RapidAPI JSearch Key</label>
+                        <input type="password" id="rapidapiKeyInput" placeholder="Enter RapidAPI Key">
+                        <small class="field-desc">Required to fetch live job listings from major employment portals.</small>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" id="cancelSettingsBtn" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" id="saveKeysBtn" class="btn btn-primary">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Configuration
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
