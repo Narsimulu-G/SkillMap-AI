@@ -172,12 +172,6 @@ def handle_analyze_skill(req: AnalyzeSkillRequest):
         raise HTTPException(status_code=400, detail="Tavily API Key is not configured.")
 
     try:
-        # Initialize Gemini Chat Model
-        model = init_chat_model(
-            "google_genai:gemini-2.5-flash",
-            api_key=gemini_key
-        )
-
         # Initialize Tavily search tool
         skill_demand_tool = TavilySearch(
             max_results=5,
@@ -194,18 +188,41 @@ You have access to these tools:
 Help the student by researching the skill they ask about and finding relevant opportunities.
 Present results in a clean, readable format with clear sections and proper spacing. Include all job details with apply links. Don't use markdown format."""
 
-        agent = create_agent(
-            model=model,
-            tools=[skill_demand_tool, search_jobs],
-            system_prompt=system_prompt
-        )
-
         user_query = f"What's the demand for {req.skill} in the industry and show me related job openings in {req.location}"
         
-        # Invoke agent
-        response = agent.invoke({
-            "messages": [{"role": "user", "content": user_query}]
-        })
+        response = None
+        try:
+            print("[API] Running agent using Gemini 2.5 Flash...")
+            model = init_chat_model(
+                "google_genai:gemini-2.5-flash",
+                api_key=gemini_key
+            )
+            agent = create_agent(
+                model=model,
+                tools=[skill_demand_tool, search_jobs],
+                system_prompt=system_prompt
+            )
+            response = agent.invoke({
+                "messages": [{"role": "user", "content": user_query}]
+            })
+        except Exception as e:
+            err_str = str(e).lower()
+            if "unavailable" in err_str or "demand" in err_str or "503" in err_str or "rate limit" in err_str or "spike" in err_str or "overloaded" in err_str:
+                print("[API] Gemini 2.5 Flash busy/unavailable. Falling back to Gemini 1.5 Flash...")
+                model = init_chat_model(
+                    "google_genai:gemini-1.5-flash",
+                    api_key=gemini_key
+                )
+                agent = create_agent(
+                    model=model,
+                    tools=[skill_demand_tool, search_jobs],
+                    system_prompt=system_prompt
+                )
+                response = agent.invoke({
+                    "messages": [{"role": "user", "content": user_query}]
+                })
+            else:
+                raise e
 
         # Extract messages
         messages = response.get("messages", [])
