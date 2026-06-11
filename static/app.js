@@ -130,6 +130,23 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!text) return "";
         let html = text;
 
+        if (typeof html !== "string") {
+            if (Array.isArray(html)) {
+                html = html.map(block => {
+                    if (typeof block === "string") return block;
+                    if (block && typeof block === "object") {
+                        if (block.text) return block.text;
+                        return JSON.stringify(block);
+                    }
+                    return String(block);
+                }).join("\n");
+            } else if (typeof html === "object") {
+                html = html.text || JSON.stringify(html);
+            } else {
+                html = String(html);
+            }
+        }
+
         // Clean double asterisks for bold
         html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 
